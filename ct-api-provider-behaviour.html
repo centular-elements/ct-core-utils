@@ -1,9 +1,9 @@
-<link rel="import" href="oc-core.html">
+<link rel="import" href="ct-core.html">
 <link rel="import" href="bluebird-import.html">
 
 <script>
-  window.OC = window.OC || {};
-  window.OC.Behaviours = window.OC.Behaviours || {};
+  window.CT = window.CT || {};
+  window.CT.Behaviours = window.CT.Behaviours || {};
   OC.Behaviours.ApiProvider = {
 
     _url: function(uri) {
@@ -18,7 +18,7 @@
         throw new Error(request.xhr.response.message);
       }
 
-      throw new Error(window.OC.Errors[request.xhr.status]);
+      throw new Error(window.CT.Errors[request.xhr.status]);
     },
 
     _generateRequest: function(request) {
@@ -31,7 +31,7 @@
 
   };
 
-  window.OC.Errors = {
+  window.CT.Errors = {
     400: 'Bad Request',
     401: 'Unauthorized',
     402: 'Payment Required',

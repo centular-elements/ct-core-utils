@@ -1,10 +1,10 @@
 {
-  "name": "oc-core-utils",
-  "description": "A set of elements to aid oc element construction",
+  "name": "ct-core-utils",
+  "description": "A set of elements to aid centular element construction",
   "main": [
-    "oc-core.html",
-    "oc-api-consumer-behaviour.html",
-    "oc-api-provider-behaviour.html",
+    "ct-core.html",
+    "ct-api-consumer-behaviour.html",
+    "ct-api-provider-behaviour.html",
     "formatter-behaviour.html"
   ],
   "dependencies": {
