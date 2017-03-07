@@ -4,10 +4,10 @@
 <script>
   window.CT = window.CT || {};
   window.CT.Behaviours = window.CT.Behaviours || {};
-  OC.Behaviours.ApiProvider = {
+  CT.Behaviours.ApiProvider = {
 
     _url: function(uri) {
-      return OC.apiHost + 'resource/' + uri;
+      return CT.apiHost + 'resource/' + uri;
     },
 
     _normalizeError: function(request) {
@@ -22,8 +22,8 @@
     },
 
     _generateRequest: function(request) {
-      request.headers.Authorization = request.headers.Authorization || 'Bearer ' + OC.token;
-      request.headers['X-Ordercloud-Organisation'] = request.headers['X-Ordercloud-Organisation'] || OC.clientId;
+      request.headers.Authorization = request.headers.Authorization || 'Bearer ' + CT.token;
+      request.headers['X-Ordercloud-Organisation'] = request.headers['X-Ordercloud-Organisation'] || CT.clientId;
       var ironRequest = request.generateRequest();
       request.headers = {};
       return ironRequest.completes.catch(this._normalizeError.bind(this, ironRequest));
