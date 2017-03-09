@@ -23,7 +23,6 @@
 
     _generateRequest: function(request) {
       request.headers.Authorization = request.headers.Authorization || 'Bearer ' + CT.token;
-      request.headers['X-Ordercloud-Organisation'] = request.headers['X-Ordercloud-Organisation'] || CT.clientId;
       var ironRequest = request.generateRequest();
       request.headers = {};
       return ironRequest.completes.catch(this._normalizeError.bind(this, ironRequest));
