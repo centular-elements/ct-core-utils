@@ -3,24 +3,9 @@
   window.CT = window.CT || {};
 
   /**
-   * The client ID to use when making API requests (X-Ordercloud-Organisation)
-   */
-  CT.clientId = CT.clientId || 'b241bebc36530fe8ebd4a499323e605d';
-
-  /**
    * The API host to use when making requests.
    */
   CT.apiHost = CT.apiHost || 'https://test-api.ordercloud.com/';
-
-  /**
-   * The client ID to use when authenticating
-   */
-  CT.authClientId = CT.authClientId || 'b241bebc36530fe8ebd4a499323e605d';
-
-  /**
-   * The Auth host to use when authenticating
-   */
-  CT.authHost = CT.authHost || 'https://test-auth.ordercloud.com/';
 
   /**
    * The user authentication token (Bearer|JWT)
@@ -28,9 +13,26 @@
   CT.token = CT.token || null;
 
   /**
-   * The user id to use when making requests
+   * An object containing contextual info:
+   * domainId, clientId, userId
    */
-  CT.userId = CT.userId || null;
+  CT.context = CT.context || null;
 
+  CT.Behaviours.ContextCreator = {
+    _setContext: function(jwtToken) {
+      if (jwtToken) {
+        var jwtClaimSetEncoded = jwtToken.split(".")[1];
+        var jwtClaimSet = JSON.parse(atob(jwtClaimSetEncoded));
+        CT.context = {
+          domainId: jwtClaimSet.did,
+          clientId: jwtClaimSet.cid,
+          userId: jwtClaimSet.uid,
+          token: jwtToken
+        }
+      } else {
+        CT.context = null
+      }
+    }
+  }
 
 </script>
