@@ -1,4 +1,4 @@
-<link rel="import" href="ct-core.html">
+<link rel="import" href="ct-context.html">
 <link rel="import" href="bluebird-import.html">
 
 <script>
@@ -7,7 +7,7 @@
   CT.Behaviours.ApiProvider = {
 
     _url: function(uri) {
-      return CT.apiHost + uri;
+      return CT.context.apiHostUrl + uri;
     },
 
     _normalizeError: function(request) {
@@ -22,7 +22,7 @@
     },
 
     _generateRequest: function(request) {
-      request.headers.Authorization = request.headers.Authorization || 'Bearer ' + CT.token;
+      request.headers.Authorization = request.headers.Authorization || 'Bearer ' + CT.identity.token;
       var ironRequest = request.generateRequest();
       request.headers = {};
       return ironRequest.completes.catch(this._normalizeError.bind(this, ironRequest));
