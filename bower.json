@@ -11,7 +11,9 @@
     "polymer": "Polymer/polymer#^1.4.0",
     "bluebird": "^3.4.0",
     "moment": "moment/moment#^2.13.0",
-    "bignumber.js": "MikeMcl/bignumber.js#^2.3.0"
+    "bignumber.js": "MikeMcl/bignumber.js#^2.3.0",
+    "app-route": "PolymerElements/app-route#^0.9.1",
+    "iron-localstorage": "polymerelements/iron-localstorage#^1.0.0"
   },
   "devDependencies": {
     "iron-component-page": "PolymerElements/iron-component-page#1.0.0",

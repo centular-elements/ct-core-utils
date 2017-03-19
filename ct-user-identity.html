@@ -1,0 +1,86 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-localstorage/iron-localstorage.html">
+
+<dom-module id="ct-user-identity">
+    <template>
+        <iron-localstorage
+                id="storage"
+                name="post-auth-page"
+                use-raw
+                auto-save-disabled
+                on-iron-localstorage-load="_localStorageLoaded"
+                on-iron-localstorage-load-empty="_localStorageLoaded"
+        ></iron-localstorage>
+    </template>
+
+    <script>
+        Polymer({
+            is: 'ct-user-identity',
+
+            properties: {
+                /**
+                 * Page to after successful sign in. If not provided, the current page will be used
+                 */
+                signedInPage: String,
+                /**
+                 * Page to after sign out. If not provided, the current page will be used
+                 */
+                signedOutPage: String
+            },
+
+            observers: [
+                '_pageToAfterSignIn(_signedInPage, _newIdentity)'
+            ],
+
+            _localStorageLoaded: function() {
+                this._signedInPage = this.$.storage.value;
+            },
+
+            signIn: function() {
+                this.$.storage.value = this.signedInPage ? this.signedInPage : window.location.href;
+                this.$.storage.save();
+                window.location = [
+                    CT.context.authHostUrl, '/oauth/authorise?response_type=token&client_id=', CT.context.clientId,
+                    '&redirect_uri=', encodeURIComponent(CT.context.tokenRedirectUri), '&state=0'
+                ].join('');
+            },
+
+            setToken: function(jwtToken) {
+                if (jwtToken) {
+                    var previousUser = CT.identity.userId;
+                    var jwtClaimSetEncoded = jwtToken.split(".")[1];
+                    var jwtClaimSet = JSON.parse(atob(jwtClaimSetEncoded));
+                    CT.identity = {
+                        domainId: jwtClaimSet.did,
+                        clientId: jwtClaimSet.cid,
+                        userId: jwtClaimSet.uid,
+                        token: jwtToken
+                    };
+                    if (CT.identity.userId != previousUser) {
+                        this._newIdentity = true;
+                        this.fire('ct-identity-changed', CT.identity);
+                    }
+                } else {
+                    CT.identity = {
+                        domainId: null,
+                        clientId: null,
+                        userId: null,
+                        token: null
+                    };
+                }
+            },
+
+            _pageToAfterSignIn: function() {
+                if (this._newIdentity && this._signedInPage) {
+                    window.history.pushState(null, '', this._signedInPage);
+                }
+            },
+
+            signOut: function() {
+                this.setToken(null);
+                window.location = [CT.context.authHostUrl, '/sign-out', '?next=',
+                    encodeURIComponent(this.signedOutPage ? window.location.origin + this.signedOutPage : window.location.href)].join('');
+            }
+        });
+    </script>
+</dom-module>

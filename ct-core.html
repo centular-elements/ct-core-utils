@@ -1,0 +1,23 @@
+<script>
+
+    window.CT = window.CT || {};
+
+    /**
+     * Contextual stuff used by API components
+     */
+    CT.context = CT.context || {
+                clientId: null,
+                tokenRedirectUri: null,
+                authHostUrl: null,
+                apiHostUrl: null
+            };
+    /**
+     * Current user identity
+     */
+    CT.identity = CT.identity || {
+                domainId: null,
+                clientId: null,
+                userId: null,
+                token: null
+            };
+</script>
