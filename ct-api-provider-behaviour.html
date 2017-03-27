@@ -11,8 +11,10 @@
     },
 
     _normalizeError: function(request) {
-      if (request.xhr.response && 'error' in request.xhr.response && request.xhr.response.error === 'expired_token') {
-        throw new ExpiredTokenError();
+      if (request.status == 401 || (request.status == 403 && request.xhr.response && 'exp' in request.xhr.response))
+      {
+        this.$.identity.signIn();
+        return;
       }
       if (request.xhr.response && 'message' in request.xhr.response) {
         throw new Error(request.xhr.response.message);
