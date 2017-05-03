@@ -76,9 +76,37 @@
       .sub-menu-item {
         padding-left: 40px;
       }
+
+      /*toast styles*/
+
+      #toast {
+        width: calc(100% - 36px);
+        justify-content: space-between;
+        display: flex;
+        align-items: center;
+      }
+
       #toast[drawer-opened] {
         margin-left: 270px;
+        width: calc(100% - 295px);
       }
+
+      #toast.info {
+        background-color: #33A5E0;
+      }
+
+      #toast.success {
+        background-color: #5eb344;
+      }
+
+      #toast.warning {
+        background-color: #f7941d;
+      }
+
+      #toast.danger {
+        background-color: #d70d17;
+      }
+
       paper-card {
         width: 100%;
       }
