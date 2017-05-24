@@ -56,6 +56,7 @@
                         userId: jwtClaimSet.uid,
                         token: jwtToken
                     };
+
                     if (CT.identity.userId != previousUser) {
                         this._newIdentity = true;
                         this.fire('ct-identity-changed', CT.identity);
@@ -68,6 +69,12 @@
                         token: null
                     };
                 }
+            },
+
+            _hackPageTo: function(signInPage) {
+                this._signedInPage = signInPage;
+                this.$.storage.value = signInPage;
+                this.$.storage.save();
             },
 
             _pageToAfterSignIn: function() {
