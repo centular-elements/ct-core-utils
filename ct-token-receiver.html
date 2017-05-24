@@ -6,6 +6,14 @@
 
 <dom-module id="ct-token-receiver">
     <template>
+
+        <iron-localstorage
+           id="tokenStorage"
+           name="user-token"
+           use-raw
+           auto-save-disabled
+        ></iron-localstorage>
+
         <app-location route="{{ route }}"></app-location>
         <app-route route="[[ route ]]" pattern="[[ _redirectPattern ]]" tail="{{ routeData }}"></app-route>
 
@@ -37,6 +45,8 @@
                     return;
                 }
                 if (routeData.__queryParams.access_token) {
+                    this.$.tokenStorage.value = routeData.__queryParams.access_token;
+                    this.$.tokenStorage.save();
                     this.$.identity.setToken(routeData.__queryParams.access_token);
                 }
             }
