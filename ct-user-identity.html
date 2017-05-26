@@ -1,53 +1,109 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../iron-localstorage/iron-localstorage.html">
+<link rel="import" href="ct-core.html">
+<link rel="import" href="ct-token-requestor-behaviour.html">
 
 <dom-module id="ct-user-identity">
     <template>
+        <app-location route="{{ route }}"></app-location>
+        <app-route route="[[ route ]]" pattern="[[ _redirectPattern ]]" tail="{{ routeData }}"></app-route>
+
         <iron-localstorage
-                id="storage"
+                id="tokenStorage"
+                name="token"
+                use-raw
+                auto-save-disabled
+                on-iron-localstorage-load="_storedTokenLoaded"
+                on-iron-localstorage-load-empty="_storedTokenLoadedEmpty"
+        ></iron-localstorage>
+        <iron-localstorage
+                id="postAuthPageStorage"
                 name="post-auth-page"
                 use-raw
                 auto-save-disabled
-                on-iron-localstorage-load="_localStorageLoaded"
-                on-iron-localstorage-load-empty="_localStorageLoaded"
+                on-iron-localstorage-load="_postAuthPageStorageLoaded"
+                on-iron-localstorage-load-empty="_postAuthPageStorageLoaded"
         ></iron-localstorage>
     </template>
 
     <script>
         Polymer({
             is: 'ct-user-identity',
-
+            behaviors: [CT.Behaviours.TokenRequestor],
             properties: {
                 /**
-                 * Page to after successful sign in. If not provided, the current page will be used
+                 * Token redirect uri you've registered for this client
                  */
-                signedInPage: String,
+                tokenRedirectUri: String,
                 /**
-                 * Page to after sign out. If not provided, the current page will be used
+                 * Page to after sign out.
                  */
                 signedOutPage: String
             },
 
             observers: [
-                '_pageToAfterSignIn(_signedInPage, _newIdentity)'
+                '_setRoutePattern(tokenRedirectUri)',
+                '_signIn(_signInRequested, _tokenLoadComplete)',
+                '_routeChanged(routeData)',
+                '_pageToAfterSignIn(_postAuthPage, _tokenReady)'
             ],
 
-            _localStorageLoaded: function() {
-                this._signedInPage = this.$.storage.value;
+            _storedTokenLoaded: function() {
+                this._storedToken = this.$.tokenStorage.value;
+                this._tokenLoadComplete = true;
+                console.log('Stored token loaded');
+            },
+
+            _storedTokenLoadedEmpty: function() {
+                this._tokenLoadComplete = true;
+                console.log('No stored token');
+            },
+
+            _postAuthPageStorageLoaded: function() {
+                this._postAuthPage = this.$.postAuthPageStorage.value;
+                console.log('Post-auth page loaded: ' + this._postAuthPage);
+            },
+
+            _setRoutePattern: function() {
+                console.log('Token reception end-point will be: ' + this.tokenRedirectUri);
+                this._redirectPattern = new URL(this.tokenRedirectUri).pathname;
             },
 
             signIn: function() {
-                this.$.storage.value = this.signedInPage ? this.signedInPage : window.location.href;
-                this.$.storage.save();
-                window.location = [
-                    CT.context.authHostUrl, '/oauth/authorise?response_type=token&client_id=', CT.context.clientId,
-                    '&redirect_uri=', encodeURIComponent(CT.context.tokenRedirectUri), '&state=0'
-                ].join('');
+                this._signInRequested = true;
             },
 
-            setToken: function(jwtToken) {
+            _signIn: function() {
+                if (this._storedToken) {
+                    console.log('Sign-in: Using stored token');
+                    this._setToken(this._storedToken);
+                    this.fire('ct-user-identity-ready');
+                } else {
+                    console.log('Sign-in: Requesting new token');
+                    this.requestImplicitGrant();
+                }
+            },
+
+            _routeChanged: function(routeData) {
+                if (routeData.prefix !== this._redirectPattern) {
+                    return;
+                }
+                if (routeData.__queryParams.access_token) {
+                    console.log('Token received on ' + this._redirectPattern);
+                    this.$.tokenStorage.value = routeData.__queryParams.access_token;
+                    this.$.tokenStorage.save();
+                    this._tokenReady = true;
+                }
+            },
+
+            _pageToAfterSignIn: function() {
+                console.log('Pushing window state');
+                //window.history.pushState(null, '', this._postAuthPage);
+                window.location = this._postAuthPage;
+            },
+
+            _setToken: function(jwtToken) {
                 if (jwtToken) {
-                    var previousUser = CT.identity.userId;
                     var jwtClaimSetEncoded = jwtToken.split(".")[1];
                     var jwtClaimSet = JSON.parse(atob(jwtClaimSetEncoded));
                     CT.identity = {
@@ -56,11 +112,6 @@
                         userId: jwtClaimSet.uid,
                         token: jwtToken
                     };
-
-                    if (CT.identity.userId != previousUser) {
-                        this._newIdentity = true;
-                        this.fire('ct-identity-changed', CT.identity);
-                    }
                 } else {
                     CT.identity = {
                         domainId: null,
@@ -71,20 +122,10 @@
                 }
             },
 
-            _hackPageTo: function(signInPage) {
-                this._signedInPage = signInPage;
-                this.$.storage.value = signInPage;
-                this.$.storage.save();
-            },
-
-            _pageToAfterSignIn: function() {
-                if (this._newIdentity && this._signedInPage) {
-                    window.history.pushState(null, '', this._signedInPage);
-                }
-            },
-
             signOut: function() {
-                this.setToken(null);
+                this.$.tokenStorage.value = null;
+                this.$.tokenStorage.save();
+                this._setToken(null);
                 window.location = [CT.context.authHostUrl, '/sign-out', '?next=',
                     encodeURIComponent(this.signedOutPage ? window.location.origin + this.signedOutPage : window.location.href)].join('');
             }

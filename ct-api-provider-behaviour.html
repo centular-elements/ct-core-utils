@@ -1,15 +1,16 @@
 <link rel="import" href="ct-core.html">
 <link rel="import" href="bluebird-import.html">
+<link rel="import" href="ct-token-requestor-behaviour.html">
 
 <script>
 
-    /**
-     * @polymerBehavior CT.Behaviours.ApiProvider
-     */
+  /**
+   * @polymerBehavior CT.Behaviours.ApiProvider
+   */
 
   window.CT = window.CT || {};
   window.CT.Behaviours = window.CT.Behaviours || {};
-  CT.Behaviours.ApiProvider = {
+  CT.Behaviours.ApiProviderImpl = {
 
     _url: function(uri) {
       return CT.context.apiHostUrl + uri;
@@ -18,7 +19,7 @@
     _normalizeError: function(request) {
       if (request.status == 401 || (request.status == 403 && request.xhr.response && 'exp' in request.xhr.response))
       {
-        this.$.identity.signIn();
+        this.requestImplicitGrant();
         return;
       }
       if (request.xhr.response && 'message' in request.xhr.response) {
@@ -36,6 +37,8 @@
     }
 
   };
+
+  CT.Behaviours.ApiProvider = [CT.Behaviours.TokenRequestor, CT.Behaviours.ApiProviderImpl];
 
   window.CT.Errors = {
     400: 'Bad Request',

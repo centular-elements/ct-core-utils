@@ -1,0 +1,41 @@
+<script>
+
+    /**
+     * @polymerBehavior CT.Behaviours.TokenRequestor
+     */
+
+    window.CT = window.CT || {};
+    window.CT.Behaviours = window.CT.Behaviours || {};
+    CT.Behaviours.TokenRequestor = {
+        requestImplicitGrant: function() {
+            if (CT.context.clientId && CT.context.authHostUrl && CT.context.tokenRedirectUri) {
+                this._save('post-auth-page', window.location.href);
+                window.location = [
+                    CT.context.authHostUrl, '/oauth/authorise?response_type=token&client_id=', CT.context.clientId,
+                    '&redirect_uri=', encodeURIComponent(CT.context.tokenRedirectUri), '&state=0'
+                ].join('');
+            } else {
+                throw 'Core components not configured. Please initialise ct-config element before attempting authorisation.'
+            }
+        },
+
+        /**
+         * Saves the value to localStorage.
+         * If `value` is null or undefined, deletes localStorage.
+         */
+        _save: function(key, value) {
+            try {
+                if (value === null || value === undefined) {
+                    window.localStorage.removeItem(key);
+                } else {
+                    window.localStorage.setItem(key, /** @type {string} */ (value));
+                }
+            }
+            catch(ex) {
+                // Happens in Safari incognito mode,
+                this.errorMessage = ex.message;
+                Polymer.Base._error("Could not save to localStorage. Incognito mode may be blocking this action", ex);
+            }
+        }
+    };
+</script>
