@@ -17,7 +17,7 @@
     },
 
     _normalizeError: function(request) {
-      if (request.status == 401 || (request.status == 403 && request.xhr.response && 'exp' in request.xhr.response))
+      if (request.status == 401)
       {
         this.requestImplicitGrant();
         return;
