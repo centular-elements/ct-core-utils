@@ -1,0 +1,41 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../ct-core-utils/ct-core.html">
+<link rel="import" href="ct-core.html">
+<link rel="import" href="ct-config.html">
+
+<dom-module id="ct-component-demo-identity">
+    <template>
+        <ct-config
+                client-id=""
+                token-redirect-uri=""
+                auth-host-url=""
+                api-host-url="https://api.centular.io"
+        ></ct-config>
+    </template>
+
+    <script>
+        (function () {
+            var CT = window.CT;
+            Polymer({
+                is: 'ct-component-demo-identity',
+
+                properties: {
+                    token: String
+                },
+
+                observers: [
+                    '_setToken(token)'
+                ],
+
+                _setToken: function () {
+                    CT.identity = {
+                        domainId: null,
+                        clientId: null,
+                        userId: null,
+                        token: this.token
+                    };
+                }
+            });
+        })();
+    </script>
+</dom-module>
