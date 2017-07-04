@@ -12,6 +12,10 @@
       this.set(property, response.response);
     },
 
+    _setNewEntityLocation: function(property, header, response) {
+      this.set(property, response.headers[header]);
+    },
+
     _setPropertyResponseResults: function(property, response) {
       this.set(property, response.response.results);
     },
