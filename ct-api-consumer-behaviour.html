@@ -1,8 +1,8 @@
 <script>
 
-    /**
-     * @polymerBehavior CT.Behaviours.ApiConsumer
-     */
+  /**
+   * @polymerBehavior CT.Behaviours.ApiConsumer
+   */
 
   window.CT = window.CT || {};
   window.CT.Behaviours = window.CT.Behaviours || {};
@@ -12,8 +12,15 @@
       this.set(property, response.response);
     },
 
-    _setNewEntityLocation: function(property, header, response) {
-      this.set(property, response.headers[header]);
+    _setPropertyResponseHeader: function(property, header, response) {
+      var value = response.xhr.getResponseHeader(header);
+      this.set(property, value);
+    },
+
+    _setPropertyNewItemId: function (property, response) {
+      var headerValue = response.xhr.getResponseHeader('location');
+      var id = headerValue.substring(headerValue.lastIndexOf('/') + 1);
+      this.set(property, id);
     },
 
     _setPropertyResponseResults: function(property, response) {
